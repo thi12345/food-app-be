@@ -32,14 +32,14 @@ export class User {
   @Column({ nullable: true })
   image: string;
 
-  @Column({ nullable: true })
+    @Column({ default: 'USER' })
   role: string;
 
-  @Column({ nullable: true })
+    @Column({ default: 'LOCAL' })
   accountType: string;
 
-  @Column({ nullable: true })
-  isActive: string;
+  @Column({ default: true })
+  isActive: boolean;
 
   @Column({ nullable: true })
   codeId: string;
