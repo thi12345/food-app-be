@@ -58,15 +58,25 @@ export class UsersService {
     return {result, totalPages};
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(updateUserDto: UpdateUserDto) {
+    return await this.userRepository.update({id: updateUserDto.id}, {...updateUserDto});
   }
+  async findOneByEmailOrPhoneNumber(params: string){
+    const value = params.trim().toLowerCase();
+    const isEmail = value.includes('@');
+    return await this.userRepository.findOne({where: isEmail ? {email: value} : {phone: value}});
+  }
+  remove(id: string) {
+try{
+      return this.userRepository.delete({id});
+}
+catch(error){
+  throw new BadRequestException('Delete user failed');
+}
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }

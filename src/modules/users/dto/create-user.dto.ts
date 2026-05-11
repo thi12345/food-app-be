@@ -9,10 +9,10 @@ export class CreateUserDto {
     email: string;
     @IsNotEmpty({message:'Password can not be empty'})
     password: string;
-        @IsOptional()
+    @IsOptional()
     phone: string;
-            @IsOptional()
+    @IsOptional()
     address: string;
-            @IsOptional()
+    @IsOptional()
     image: string;
 }
