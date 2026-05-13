@@ -6,6 +6,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './schemas/user.schema';
 import { hashPasswordHelper } from '@/helpers/util';
 import aqp from 'api-query-params';
+import { CreateAuthDto } from '@/auth/dto/create-auth.dto';
+import {v4 as uuidv4} from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -71,12 +74,38 @@ export class UsersService {
     return await this.userRepository.findOne({where: isEmail ? {email: value} : {phone: value}});
   }
   remove(id: string) {
-try{
-      return this.userRepository.delete({id});
-}
-catch(error){
-  throw new BadRequestException('Delete user failed');
-}
+    try{
+          return this.userRepository.delete({id});
+    }
+    catch(error){
+      throw new BadRequestException('Delete user failed');
+    }
+  }
 
+  async handleRegister (registerDto: CreateAuthDto){
+        const {name,email,password} = registerDto;
+    //check mail exist or not
+    const isEmailExist = await this.isEmailExist(email);
+    if(isEmailExist){
+      throw new BadRequestException('Email already exists');
+    }
+    //hash password 
+    const hashPassword = await hashPasswordHelper(registerDto.password);
+    const user= await this.userRepository.create({
+      name,email,password: hashPassword,
+      isActive: false,
+      codeId: uuidv4(),
+      codeExpired: dayjs().add(30, 'minutes').toDate()
+    })
+
+    await this.userRepository.save(user);
+    //send response
+    return {
+      id: user.id
+    }
+    //send mail
+
+
+  
   }
 }
