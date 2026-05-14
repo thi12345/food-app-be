@@ -5,10 +5,14 @@ import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { JwtAuthGuard } from './passport/jwt-auth.guard';
 import { Public } from '@/decorator/customize';
+import { MailerService } from '@nestjs-modules/mailer';
+
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,
+    private mailerService: MailerService
+  ) {}
   @UseGuards(LocalAuthGuard)
   @Public()
   @Post('login')
@@ -21,10 +25,27 @@ export class AuthController {
   return req.logout();
 }
 
-  //@UseGuards(JwtAuthGuard)
+
   @Post('register')
   @Public()
-  getProfile(@Body() registerDto: CreateAuthDto) {
+  register(@Body() registerDto: CreateAuthDto) {
     return this.authService.handleRegister(registerDto);
+  }
+
+  @Get('mail')
+  @Public()
+  testMail() {
+    this.mailerService.sendMail({
+      to: 'nhockaka2002@gmail.com',
+      subject: 'Hello World',
+      text: 'Plain text content',
+      html: '<b>HTML content</b>',
+      template: 'register',
+      context: {
+        name:   'John Doe',
+        activationCode: 123456
+      }
+    });
+    return 'success';
   }
 }
